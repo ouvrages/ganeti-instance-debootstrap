@@ -1,0 +1,12 @@
+This is a guest OS definition for Ganeti (http://code.google.com/p/ganeti).
+It will install a minimal version of Debian Etch via debootstrap (thus it
+requires network access). This only works if you have a Debian-based
+node or you have debootstrap installed by hand on another distribution.
+
+You need to put these files in a directory under /srv/ganeti/os on all the
+nodes of the cluster (e.g.  /srv/ganeti/os/debian-etch).
+
+Notes:
+ - no password for root; simply login at the console
+ - no network interfaces defined (besides lo); add your own definitions to
+   /etc/network/interfaces

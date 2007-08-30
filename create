@@ -1,0 +1,93 @@
+#!/bin/sh
+
+# Copyright (C) 2007 Google Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+set -e
+
+# Customize this if you need another mirror, or set to empty to get the
+# node's sources.list
+MIRROR="http://ftp.debian.org/debian"
+
+TEMP=`getopt -o i:b:s: -n '$0' -- "$@"`
+
+if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+
+# Note the quotes around `$TEMP': they are essential!
+eval set -- "$TEMP"
+
+while true; do 
+	case "$1" in
+		-i) instance=$2; shift 2;;
+
+		-b) blockdev=$2; shift 2;;
+
+		-s) swapdev=$2; shift 2;;
+
+		--) shift; break;;
+
+		*)  echo "Internal error!"; exit 1;;
+	esac
+done
+if [ -z "$instance" -o -z "$blockdev" -o -z "$swapdev" ]; then
+	echo "Missing -i or -b or -s argument!"
+	exit 1
+fi
+
+mkswap $swapdev
+mke2fs -Fjq $blockdev
+TMPDIR=`mktemp -d` || exit 1
+trap "umount $TMPDIR; rmdir $TMPDIR" EXIT
+mount $blockdev $TMPDIR
+
+# On i386, we need the xen-specific library
+DPKG_ARCH="`dpkg --print-architecture`"
+if [ "$DPKG_ARCH" = "i386" ]; then
+	EXTRAPKG="linux-image-xen-686 libc6-xen"
+elif [ "$DPKG_ARCH" = "amd64" ]; then
+	EXTRAPKG="linux-image-xen-amd64"
+fi
+
+debootstrap --include="$EXTRAPKG" etch $TMPDIR $MIRROR
+
+# remove the persistent-net rules, otherwise it will remember the node's
+# interfaces as eth0, eth1, ...
+
+rm -f "$TMPDIR/etc/udev/rules.d/z25_persistent-net.rules"
+
+cp -p /etc/hosts $TMPDIR/etc/hosts
+cp -p /etc/resolv.conf $TMPDIR/etc/resolv.conf
+echo $instance > $TMPDIR/etc/hostname
+echo $instance > $TMPDIR/etc/mailname
+
+cat > $TMPDIR/etc/fstab <<EOF
+# /etc/fstab: static file system information.
+#
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+/dev/sda        /               ext3    defaults        0       1
+/dev/sdb        swap            swap    defaults        0       0
+proc            /proc           proc    defaults        0       0
+EOF
+
+cat > $TMPDIR/etc/network/interfaces <<EOF
+auto lo
+iface lo inet loopback
+EOF
+
+umount $TMPDIR
+rmdir $TMPDIR
+trap - EXIT

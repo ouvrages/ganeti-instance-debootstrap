@@ -1,0 +1,56 @@
+#!/bin/sh
+
+# Copyright (C) 2007 Google Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+set -e
+
+TEMP=`getopt -o i:b:s: -n '$0' -- "$@"`
+
+if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+
+# Note the quotes around `$TEMP': they are essential!
+eval set -- "$TEMP"
+
+while true; do 
+	case "$1" in
+		-i) instance=$2; shift 2;;
+
+		-b) blockdev=$2; shift 2;;
+
+		-s) swapdev=$2; shift 2;;
+
+		--) shift; break;;
+
+		*)  echo "Internal error!"; exit 1;;
+	esac
+done
+if [ -z "$instance" -o -z "$blockdev" -o -z "$swapdev" ]; then
+	echo "Missing -i or -b or -s argument!"
+	exit 1
+fi
+
+mkswap $swapdev
+mke2fs -Fjq $blockdev
+TMPDIR=`mktemp -d` || exit 1
+trap "umount $TMPDIR; rmdir $TMPDIR" EXIT
+mount $blockdev $TMPDIR
+( cd $TMPDIR; restore -r -y -f - )
+
+umount $TMPDIR
+rmdir $TMPDIR
+trap - EXIT
