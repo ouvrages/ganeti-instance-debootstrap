@@ -91,3 +91,5 @@ EOF
 umount $TMPDIR
 rmdir $TMPDIR
 trap - EXIT
+
+exit 0
