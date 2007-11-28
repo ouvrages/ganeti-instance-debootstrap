@@ -22,6 +22,8 @@ set -e
 # Customize this if you need another mirror, or set to empty to get the
 # node's sources.list
 MIRROR="http://ftp.debian.org/debian"
+DPKG_ARCH="`dpkg --print-architecture`"
+CACHE_FILE="cache-${DPKG_ARCH}.tar"
 
 TEMP=`getopt -o i:b:s: -n '$0' -- "$@"`
 
@@ -54,20 +56,36 @@ TMPDIR=`mktemp -d` || exit 1
 trap "umount $TMPDIR; rmdir $TMPDIR" EXIT
 mount $blockdev $TMPDIR
 
-# On i386, we need the xen-specific library
-DPKG_ARCH="`dpkg --print-architecture`"
-if [ "$DPKG_ARCH" = "i386" ]; then
-	EXTRAPKG="linux-image-xen-686 libc6-xen"
-elif [ "$DPKG_ARCH" = "amd64" ]; then
-	EXTRAPKG="linux-image-xen-amd64"
+# remove the cache file if it's old (> 2 weeks) and writable by the owner (the
+# default due to the standard umask)
+if [ -f "$CACHE_FILE" ]; then
+	find "$CACHE_FILE" -perm -0200 -daystart -mtime +14 -print0 | \
+		xargs -r0 rm
 fi
 
-debootstrap --include="$EXTRAPKG" etch $TMPDIR $MIRROR
+if [ -f "$CACHE_FILE" ]; then
+	tar xf "$CACHE_FILE" -C $TMPDIR
+else
+	# On i386, we need the xen-specific library
+	if [ "$DPKG_ARCH" = "i386" ]; then
+		EXTRAPKG="linux-image-xen-686 libc6-xen"
+	elif [ "$DPKG_ARCH" = "amd64" ]; then
+		EXTRAPKG="linux-image-xen-amd64"
+	fi
 
-# remove the persistent-net rules, otherwise it will remember the node's
-# interfaces as eth0, eth1, ...
+	debootstrap --include="$EXTRAPKG" etch $TMPDIR $MIRROR
 
-rm -f "$TMPDIR/etc/udev/rules.d/z25_persistent-net.rules"
+	# remove the persistent-net rules, otherwise it will remember the node's
+	# interfaces as eth0, eth1, ...
+
+	rm -f "$TMPDIR/etc/udev/rules.d/z25_persistent-net.rules"
+
+	if [ ! -e no_cache ]; then
+		TMP_CACHE=`mktemp "${CACHE_FILE}.XXXXXX"`
+		tar cf "$TMP_CACHE" -C $TMPDIR .
+		mv "$TMP_CACHE" "$CACHE_FILE"
+	fi
+fi
 
 cp -p /etc/hosts $TMPDIR/etc/hosts
 cp -p /etc/resolv.conf $TMPDIR/etc/resolv.conf
