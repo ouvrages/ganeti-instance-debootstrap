@@ -50,7 +50,7 @@ TMPDIR=`mktemp -d` || exit 1
 trap "umount $TMPDIR; rmdir $TMPDIR" EXIT
 mount $blockdev $TMPDIR
 ( cd $TMPDIR; restore -r -y -f - )
-
+rm -f $TMPDIR/etc/udev/rules.d/z25_persistent-net.rules
 umount $TMPDIR
 rmdir $TMPDIR
 trap - EXIT
