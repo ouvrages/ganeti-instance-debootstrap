@@ -1,0 +1,27 @@
+Version 0.4
+-----------
+
+This version fixes the problem of interface renaming at instance import
+time, by removing the saved udev hotplug rules (if any).
+
+Version 0.3
+-----------
+
+The OS will cache the image of the first instance it installs using the
+name "cache-$arch.tar" (where $arch is what dpkg --print-architecture
+returns) on a node-by-node basis. This cache will be then used on the
+future installs, speeding them greatly (even with a fast mirror). Feel
+free to remove the cache at any time, or to copy it to all nodes. The
+cache will be kept for two weeks, after which the first install will
+recreate the cache (in order not to use old packages). If you don't care
+about package age, remove the user write permission (chmod u-w) from the
+cache and ganeti will continue to use the same file without refreshing
+it.
+
+If you don't have enough space and don't want cache creation, just touch
+the file 'no_cache' - this will prevent the creation, but the script
+will continue to use a cache if it exists (but it will remove an
+existing one after two weeks).
+
+Also note that if the image file is there, the script does not need
+network access at all.
