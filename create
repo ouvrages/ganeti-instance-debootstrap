@@ -60,7 +60,7 @@ mount $blockdev $TMPDIR
 # default due to the standard umask)
 if [ -f "$CACHE_FILE" ]; then
 	find "$CACHE_FILE" -perm -0200 -daystart -mtime +14 -print0 | \
-		xargs -r0 rm
+		xargs -r0 rm -f
 fi
 
 if [ -f "$CACHE_FILE" ]; then
@@ -75,6 +75,10 @@ else
 
 	debootstrap --include="$EXTRAPKG" etch $TMPDIR $MIRROR
 
+	# remove the downloaded debs, as they are no longer needed
+	find "$TMPDIR/var/cache/apt/archives" -type f -name '*.deb' -print0 | \
+		xargs -r0 rm -f
+
 	# remove the persistent-net rules, otherwise it will remember the node's
 	# interfaces as eth0, eth1, ...
 
@@ -83,7 +87,7 @@ else
 	if [ ! -e no_cache ]; then
 		TMP_CACHE=`mktemp "${CACHE_FILE}.XXXXXX"`
 		tar cf "$TMP_CACHE" -C $TMPDIR .
-		mv "$TMP_CACHE" "$CACHE_FILE"
+		mv -f "$TMP_CACHE" "$CACHE_FILE"
 	fi
 fi
 
