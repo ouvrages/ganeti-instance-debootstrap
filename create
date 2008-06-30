@@ -54,7 +54,14 @@ mkswap $swapdev
 mke2fs -Fjq $blockdev
 TMPDIR=`mktemp -d` || exit 1
 trap "umount $TMPDIR; rmdir $TMPDIR" EXIT
-mount $blockdev $TMPDIR
+
+# If it's not a block device try to mount it via loopback device.
+# This is needed for file disks.
+MOUNT_OPTIONS=""
+if [ ! -b $blockdev ]; then
+  MOUNT_OPTIONS="$MOUNT_OPTIONS -o loop"
+fi
+mount $MOUNT_OPTIONS $blockdev $TMPDIR
 
 # remove the cache file if it's old (> 2 weeks) and writable by the owner (the
 # default due to the standard umask)
