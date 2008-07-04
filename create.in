@@ -19,11 +19,23 @@
 
 set -e
 
-# Customize this if you need another mirror, or set to empty to get the
-# node's sources.list
-MIRROR="http://ftp.debian.org/debian"
-DPKG_ARCH="`dpkg --print-architecture`"
-CACHE_FILE="cache-${DPKG_ARCH}.tar"
+DEFAULT_FILE="@sysconfdir@/default/ganeti-instance-debootstrap"
+if [ -f "$DEFAULT_FILE" ]; then
+    . "$DEFAULT_FILE"
+fi
+
+# note: we don't set a default mirror since debian and ubuntu have
+# different defaults, and it's better to use the default
+
+# only if the user want to specify a mirror in the defaults file we
+# will use it, this declaration is to make sure the variable is set
+: ${MIRROR:=""}
+: ${SUITE:="lenny"}
+: ${ARCH:=""}
+: ${EXTRA_PKGS:=""}
+
+DPKG_ARCH=${ARCH:-`dpkg --print-architecture`}
+CACHE_FILE="cache-${SUITE}-${DPKG_ARCH}.tar"
 
 TEMP=`getopt -o i:b:s: -n '$0' -- "$@"`
 
@@ -73,14 +85,13 @@ fi
 if [ -f "$CACHE_FILE" ]; then
   tar xf "$CACHE_FILE" -C $TMPDIR
 else
-  # On i386, we need the xen-specific library
-  if [ "$DPKG_ARCH" = "i386" ]; then
-    EXTRAPKG="linux-image-xen-686 libc6-xen"
-  elif [ "$DPKG_ARCH" = "amd64" ]; then
-    EXTRAPKG="linux-image-xen-amd64"
-  fi
-
-  debootstrap --include="$EXTRAPKG" etch $TMPDIR $MIRROR
+  # INCLUDE will be empty if EXTRA_PKGS is null/empty, otherwise we
+  # build the full parameter format from it
+  INCLUDE=${EXTRA_PKGS:+"--include=$EXTRA_PKGS"}
+  debootstrap \
+    --arch "$DPKG_ARCH" \
+    $INCLUDE \
+    "$SUITE" $TMPDIR $MIRROR
 
   # remove the downloaded debs, as they are no longer needed
   find "$TMPDIR/var/cache/apt/archives" -type f -name '*.deb' -print0 | \
@@ -88,7 +99,6 @@ else
 
   # remove the persistent-net rules, otherwise it will remember the node's
   # interfaces as eth0, eth1, ...
-
   rm -f "$TMPDIR/etc/udev/rules.d/z25_persistent-net.rules"
 
   if [ ! -e no_cache ]; then

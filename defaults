@@ -1,0 +1,30 @@
+# ganeti-instance-debootstrap defaults file
+
+# if you want to change from the default of installing debian stable
+# on the next instance, customize this file before the instance
+# installation
+
+# MIRROR: do not customize MIRROR if you want to be able to install
+# both debian and ubuntu, since they have different defaults; or
+# customize it before each install
+# MIRROR="http://ftp.debian.org/debian"
+
+# ARCH: define ARCH only if you want a different architecture than the
+# current one; the known use case is to install a 32-bit instance on a
+# 64-bit node; choose either "i386" or "amd64":
+# ARCH="i386"
+
+# SUITE: change suite to any of the ones supported by deboostrap; this
+# could be unstable, etch, etc.:
+# SUITE="lenny"
+
+# EXTRA_PKGS: depending on the suite and architecture you are using,
+# different extra packages are needed for Xen support; if you are not
+# using Xen, then Xen packages should not be installed and you should
+# use a different, if any, value for it
+
+# for etch/lenny i386:
+# EXTRA_PKGS="linux-image-xen-686,libc6-xen"
+
+# for etch amd64 (lenny doesn't have xen support in amd64):
+# EXTRA_PKGS="linux-image-xen-amd64"
