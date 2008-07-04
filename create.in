@@ -32,22 +32,22 @@ if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 # Note the quotes around `$TEMP': they are essential!
 eval set -- "$TEMP"
 
-while true; do 
-	case "$1" in
-		-i) instance=$2; shift 2;;
+while true; do
+  case "$1" in
+    -i) instance=$2; shift 2;;
 
-		-b) blockdev=$2; shift 2;;
+    -b) blockdev=$2; shift 2;;
 
-		-s) swapdev=$2; shift 2;;
+    -s) swapdev=$2; shift 2;;
 
-		--) shift; break;;
+    --) shift; break;;
 
-		*)  echo "Internal error!"; exit 1;;
-	esac
+    *)  echo "Internal error!"; exit 1;;
+  esac
 done
 if [ -z "$instance" -o -z "$blockdev" -o -z "$swapdev" ]; then
-	echo "Missing -i or -b or -s argument!"
-	exit 1
+  echo "Missing -i or -b or -s argument!"
+  exit 1
 fi
 
 mkswap $swapdev
@@ -66,36 +66,36 @@ mount $MOUNT_OPTIONS $blockdev $TMPDIR
 # remove the cache file if it's old (> 2 weeks) and writable by the owner (the
 # default due to the standard umask)
 if [ -f "$CACHE_FILE" ]; then
-	find "$CACHE_FILE" -perm -0200 -daystart -mtime +14 -print0 | \
-		xargs -r0 rm -f
+  find "$CACHE_FILE" -perm -0200 -daystart -mtime +14 -print0 | \
+    xargs -r0 rm -f
 fi
 
 if [ -f "$CACHE_FILE" ]; then
-	tar xf "$CACHE_FILE" -C $TMPDIR
+  tar xf "$CACHE_FILE" -C $TMPDIR
 else
-	# On i386, we need the xen-specific library
-	if [ "$DPKG_ARCH" = "i386" ]; then
-		EXTRAPKG="linux-image-xen-686 libc6-xen"
-	elif [ "$DPKG_ARCH" = "amd64" ]; then
-		EXTRAPKG="linux-image-xen-amd64"
-	fi
+  # On i386, we need the xen-specific library
+  if [ "$DPKG_ARCH" = "i386" ]; then
+    EXTRAPKG="linux-image-xen-686 libc6-xen"
+  elif [ "$DPKG_ARCH" = "amd64" ]; then
+    EXTRAPKG="linux-image-xen-amd64"
+  fi
 
-	debootstrap --include="$EXTRAPKG" etch $TMPDIR $MIRROR
+  debootstrap --include="$EXTRAPKG" etch $TMPDIR $MIRROR
 
-	# remove the downloaded debs, as they are no longer needed
-	find "$TMPDIR/var/cache/apt/archives" -type f -name '*.deb' -print0 | \
-		xargs -r0 rm -f
+  # remove the downloaded debs, as they are no longer needed
+  find "$TMPDIR/var/cache/apt/archives" -type f -name '*.deb' -print0 | \
+    xargs -r0 rm -f
 
-	# remove the persistent-net rules, otherwise it will remember the node's
-	# interfaces as eth0, eth1, ...
+  # remove the persistent-net rules, otherwise it will remember the node's
+  # interfaces as eth0, eth1, ...
 
-	rm -f "$TMPDIR/etc/udev/rules.d/z25_persistent-net.rules"
+  rm -f "$TMPDIR/etc/udev/rules.d/z25_persistent-net.rules"
 
-	if [ ! -e no_cache ]; then
-		TMP_CACHE=`mktemp "${CACHE_FILE}.XXXXXX"`
-		tar cf "$TMP_CACHE" -C $TMPDIR .
-		mv -f "$TMP_CACHE" "$CACHE_FILE"
-	fi
+  if [ ! -e no_cache ]; then
+    TMP_CACHE=`mktemp "${CACHE_FILE}.XXXXXX"`
+    tar cf "$TMP_CACHE" -C $TMPDIR .
+    mv -f "$TMP_CACHE" "$CACHE_FILE"
+  fi
 fi
 
 cp -p /etc/hosts $TMPDIR/etc/hosts
