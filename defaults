@@ -28,3 +28,13 @@
 
 # for etch amd64 (lenny doesn't have xen support in amd64):
 # EXTRA_PKGS="linux-image-xen-amd64"
+
+# GENERATE_CACHE: if set to yes (the default), create new cache files;
+# any other value will disable the generation of cache files (but they
+# will still be used if they exist)
+GENERATE_CACHE="yes"
+
+# CLEAN_CACHE: should be set to the number of days after which to
+# clean the cache; the default is 14 (two weeks); to disable cache
+# cleaning, set it to an empty value ("")
+CLEAN_CACHE="14"

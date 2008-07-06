@@ -33,9 +33,17 @@ fi
 : ${SUITE:="lenny"}
 : ${ARCH:=""}
 : ${EXTRA_PKGS:=""}
+: ${GENERATE_CACHE:="yes"}
+: ${CLEAN_CACHE:="14"} # number of days to keep a cache file
+
+CACHE_DIR="@localstatedir@/cache/ganeti-instance-debootstrap"
+
+if [ "$GENERATE_CACHE" = "yes" -a ! -d "$CACHE_DIR" ]; then
+  mkdir -p "$CACHE_DIR"
+fi
 
 DPKG_ARCH=${ARCH:-`dpkg --print-architecture`}
-CACHE_FILE="cache-${SUITE}-${DPKG_ARCH}.tar"
+CACHE_FILE="$CACHE_DIR/cache-${SUITE}-${DPKG_ARCH}.tar"
 
 TEMP=`getopt -o i:b:s: -n '$0' -- "$@"`
 
@@ -77,8 +85,9 @@ mount $MOUNT_OPTIONS $blockdev $TMPDIR
 
 # remove the cache file if it's old (> 2 weeks) and writable by the owner (the
 # default due to the standard umask)
-if [ -f "$CACHE_FILE" ]; then
-  find "$CACHE_FILE" -perm -0200 -daystart -mtime +14 -print0 | \
+if [ "$CLEAN_CACHE" -a -d "$CACHE_DIR" ]; then
+  find "$CACHE_DIR" -name 'cache-*.tar' -type f \
+    -daystart -mtime "+${CLEAN_CACHE}" -print0 | \
     xargs -r0 rm -f
 fi
 
@@ -101,7 +110,7 @@ else
   # interfaces as eth0, eth1, ...
   rm -f "$TMPDIR/etc/udev/rules.d/z25_persistent-net.rules"
 
-  if [ ! -e no_cache ]; then
+  if [ "$GENERATE_CACHE" = "yes" ]; then
     TMP_CACHE=`mktemp "${CACHE_FILE}.XXXXXX"`
     tar cf "$TMP_CACHE" -C $TMPDIR .
     mv -f "$TMP_CACHE" "$CACHE_FILE"

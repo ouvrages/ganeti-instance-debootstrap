@@ -1,3 +1,23 @@
+Version 0.5 (unreleased)
+------------------------
+
+Most of the settings of the script have been moved to a configuration
+file.  Depending on the ./configure options, the location of this file
+might be /etc/default/ganeti-instance-debootstrap or
+/usr/local/etc/default/ganeti-instance-debootstrap.
+
+The cache generation and cleaning variables can be modified as follows:
+
+- to enable generating the cache, modify the config file and set
+  GENERATE_CACHE to "yes"
+- to disable cleaning the cache, set CLEAN_CACHE to ""; or
+  alternatively, you can customize with this variable the number of days
+  after which to clear the cache
+
+Note that the cache file is no longer stored in the same directory as
+the OS definition files, but (again depending on ./configure options)
+usually under /var/cache/ganeti-instance-debootstrap.
+
 Version 0.4
 -----------
 

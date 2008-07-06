@@ -10,7 +10,9 @@ dist_doc_DATA = COPYING NEWS README
 
 EXTRA_DIST = create.in defaults
 
-do_subst = sed -e 's,[@]sysconfdir[@],$(sysconfdir),g'
+do_subst = sed \
+	-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
+	-e 's,[@]localstatedir[@],$(localstatedir),g'
 
 create: create.in Makefile
 	$(do_subst) < $< > $@
