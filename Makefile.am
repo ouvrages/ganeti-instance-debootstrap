@@ -8,7 +8,7 @@ dist_os_DATA = ganeti_api_version
 
 dist_doc_DATA = COPYING NEWS README
 
-EXTRA_DIST = create.in
+EXTRA_DIST = create.in defaults
 
 do_subst = sed -e 's,[@]sysconfdir[@],$(sysconfdir),g'
 
