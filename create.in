@@ -30,6 +30,7 @@ fi
 # only if the user want to specify a mirror in the defaults file we
 # will use it, this declaration is to make sure the variable is set
 : ${MIRROR:=""}
+: ${PROXY:=""}
 : ${SUITE:="lenny"}
 : ${ARCH:=""}
 : ${EXTRA_PKGS:=""}
@@ -94,6 +95,9 @@ fi
 if [ -f "$CACHE_FILE" ]; then
   tar xf "$CACHE_FILE" -C $TMPDIR
 else
+  if [ "$PROXY" ]; then
+    export http_proxy="$PROXY"
+  fi
   # INCLUDE will be empty if EXTRA_PKGS is null/empty, otherwise we
   # build the full parameter format from it
   INCLUDE=${EXTRA_PKGS:+"--include=$EXTRA_PKGS"}

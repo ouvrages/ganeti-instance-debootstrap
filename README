@@ -48,6 +48,7 @@ will be ``/etc/default/ganeti-instance-debootstrap``.
 The following settings will be examined in this file (see also the file
 named 'defaults' in the source distribution for more details):
 
+- PROXY: http proxy to use for non-cached installs
 - MIRROR: the mirror to use if not the default one
 - ARCH: either i386 or amd64, otherwise your current architecture will
   be used

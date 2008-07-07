@@ -4,6 +4,12 @@
 # on the next instance, customize this file before the instance
 # installation
 
+# PROXY: if non-null, use this as an http-proxy in order to speed up
+# non-cached installs; not that if not set, debootstrap might still
+# use a system-wide proxy setting if it is exported in the
+# ganeti-noded daemon environment
+# PROXY="http://proxy.example.com:3128/"
+
 # MIRROR: do not customize MIRROR if you want to be able to install
 # both debian and ubuntu, since they have different defaults; or
 # customize it before each install
