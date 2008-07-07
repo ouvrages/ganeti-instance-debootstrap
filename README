@@ -41,9 +41,9 @@ Configuration of instance creation
 The kind of instance created can be customized via a settings file. This
 file is not installed by default, as the instance creation will work
 without it. The creation scripts will look for it in
-``$sysconfdir/defaults/ganeti-instance-debootstrap``, so if you have run
+``$sysconfdir/default/ganeti-instance-debootstrap``, so if you have run
 configure with the parameter ``--sysconfdir=/etc``, the final filename
-will be ``/etc/defaults/ganeti-instance-debootstrap``.
+will be ``/etc/default/ganeti-instance-debootstrap``.
 
 The following settings will be examined in this file (see also the file
 named 'defaults' in the source distribution for more details):
