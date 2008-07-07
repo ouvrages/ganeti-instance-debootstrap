@@ -1,5 +1,5 @@
-Version 0.5 (unreleased)
-------------------------
+Version 0.5
+-----------
 
 Most of the settings of the script have been moved to a configuration
 file.  Depending on the ./configure options, the location of this file
@@ -17,6 +17,11 @@ The cache generation and cleaning variables can be modified as follows:
 Note that the cache file is no longer stored in the same directory as
 the OS definition files, but (again depending on ./configure options)
 usually under /var/cache/ganeti-instance-debootstrap.
+
+There are many other customuizable settings added in this version, for
+example the actual OS to be installed (no longer always installing
+Debian Etch), whether to use a proxy or not, etc. See the README and the
+'defaults' files.
 
 Version 0.4
 -----------
