@@ -1,6 +1,6 @@
 osname=$(subst ganeti-instance-,,$(PACKAGE))
 
-osdir=$(datadir)/ganeti/os/$(osname)
+osdir=$(OS_DIR)/$(osname)
 
 os_SCRIPTS = create
 dist_os_SCRIPTS = import export rename
