@@ -1,12 +1,102 @@
+ganeti-instance-debootstrap
+===========================
+
 This is a guest OS definition for Ganeti (http://code.google.com/p/ganeti).
-It will install a minimal version of Debian Etch via debootstrap (thus it
-requires network access). This only works if you have a Debian-based
-node or you have debootstrap installed by hand on another distribution.
+It will install a minimal version of Debian or Ubuntu via debootstrap (thus it
+requires network access). This only works if you have a Debian-based node or
+you have debootstrap installed by hand on another distribution.
 
-You need to put these files in a directory under /srv/ganeti/os on all the
-nodes of the cluster (e.g.  /srv/ganeti/os/debian-etch).
+Installation
+------------
 
-Notes:
- - no password for root; simply login at the console
- - no network interfaces defined (besides lo); add your own definitions to
-   /etc/network/interfaces
+In order to install this package from source, you need to determine what
+options ganeti itself has been configured with. If ganeti was built
+directly from source, then the only place it looks for OS definitions is
+``/srv/ganeti/os``, and you need to install the OS under it::
+
+  ./configure --prefix=/usr --localstatedir=/var \
+    --sysconfdir=/etc \
+    --with-os-dir=/srv/ganeti/os
+  make && make install
+
+If ganeti was installed from a package, its default OS path should
+already include /usr/share/ganeti/os, so you can just run::
+
+  ./configure -prefix=/usr --localstatedir=/var \
+    --sysconfdir=/etc
+  make && make install
+
+Note that you need to repeat this procedure on all nodes of the cluster.
+
+The actual path that ganeti has been installed with can be determined by
+looking for a file named _autoconf.py under a ganeti directory in the
+python modules tree (e.g.
+``/usr/lib/python2.4/site-packages/ganeti/_autoconf.py``). In this file,
+a variable named OS_SEARCH_PATH will list all the directories in which
+ganeti will look for OS definitions.
+
+Configuration of instance creation
+----------------------------------
+
+The kind of instance created can be customized via a settings file. This
+file is not installed by default, as the instance creation will work
+without it. The creation scripts will look for it in
+``$sysconfdir/defaults/ganeti-instance-debootstrap``, so if you have run
+configure with the parameter ``--sysconfdir=/etc``, the final filename
+will be ``/etc/defaults/ganeti-instance-debootstrap``.
+
+The following settings will be examined in this file (see also the file
+named 'defaults' in the source distribution for more details):
+
+- MIRROR: the mirror to use if not the default one
+- ARCH: either i386 or amd64, otherwise your current architecture will
+  be used
+- SUITE: the actual OS to be installed; the current default is Debian
+  *lenny*, and you can choose any of the OSes supported deboostrap (on
+  Debian, look into /usr/share/deboostrap/scripts)
+- EXTRAPKGS: most OSes will need some extra packages installed to make
+  them work nicely under Xen; the example file containts a few
+  suggestions
+- GENERATE_CACHE: if 'yes' (the default), the installation process will
+  save and reuse a cache file to speed reinstalls (located under
+  $localstatedir/cache/ganeti-instance-debootstrap)
+- CLEAN_CACHE: if empty, the cached files will never be cleaned and thus
+  the installation will definitely need to be updated after install;
+  otherwise, the value of this variable will be taken as the number of
+  days after which to remove the cache file; the default is 14 (two
+  weeks)
+
+Note that the settings file is important on the node that the instance
+is installed on, not the cluster master. This is indeed not a very good
+model of using this OS but currently the OS interface in ganeti is
+limiting.
+
+Caching
+~~~~~~~
+
+As described above, the install process uses a cache file in order to
+speed up repeated installs. If you only rarely do installs, this will
+not matter to you, but if you want to install 10 instances in a row, the
+difference will be visible.
+
+The default settings are to generate a cache, and to clean it up after
+two weeks.
+
+Note that the cache will use one file per architecture per suite, so if
+you install multiple suites there might be a non-trivial amount of space
+used in the cache directory. It is safe to remove manually the files.
+
+It is also possible, if done with care, to modify and regenerate the
+cache file (which is simply a tar archive) in order to preseed your
+installs with site-specific customizations.
+
+Instance notes
+--------------
+
+The instance is a minimal install:
+
+ - it has no password for root; simply login at the console
+ - it has no network interfaces defined (besides lo); add your own
+   definitions to /etc/network/interfaces
+ - after configuring the network, it is recommended to run ``apt-get
+   update`` so that signatures for the release files are picked up
