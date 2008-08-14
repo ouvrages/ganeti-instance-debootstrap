@@ -44,8 +44,11 @@ if [ -z "$instance" -o -z "$blockdev" -o -z "$swapdev" ]; then
 	exit 1
 fi
 
-mkswap $swapdev
+swap_uuid=$(mkswap $swapdev | grep 'UUID' | sed -re 's/.*UUID=//')
 mke2fs -Fjq $blockdev
+root_uuid=$(dumpe2fs -h $blockdev | grep '^Filesystem UUID:' \
+            | sed -re 's/.*UUID:\s*//')
+
 TMPDIR=`mktemp -d` || exit 1
 trap "umount $TMPDIR; rmdir $TMPDIR" EXIT
 
@@ -59,6 +62,18 @@ mount $MOUNT_OPTIONS $blockdev $TMPDIR
 
 ( cd $TMPDIR; restore -r -y -f - )
 rm -f $TMPDIR/etc/udev/rules.d/z25_persistent-net.rules
+
+# Fix /etc/fstab with the new volumes' UUIDs
+if [ -e $TMPDIR/etc/fstab ]; then
+  ROOT_LINE="UUID=$root_uuid  /     ext3  defaults  0  1"
+  SWAP_LINE="UUID=$swap_uuid  swap  swap  defaults  0  0"
+  cat $TMPDIR/etc/fstab | \
+    sed -re "s#^(/dev/sda|UUID=[a-f0-9-]+)\s+/\s+.*\$#$ROOT_LINE#" \
+        -re "s#^(/dev/sdb|UUID=[a-f0-9-]+)\s+swap\s+.*\$#$SWAP_LINE#" \
+    > $TMPDIR/etc/fstab.new
+  mv $TMPDIR/etc/fstab.new  $TMPDIR/etc/fstab
+fi
+
 umount $TMPDIR
 rmdir $TMPDIR
 trap - EXIT

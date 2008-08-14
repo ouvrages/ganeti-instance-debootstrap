@@ -71,8 +71,10 @@ if [ -z "$instance" -o -z "$blockdev" -o -z "$swapdev" ]; then
   exit 1
 fi
 
-mkswap $swapdev
+swap_uuid=$(mkswap $swapdev | grep 'UUID' | sed -re 's/.*UUID=//')
 mke2fs -Fjq $blockdev
+root_uuid=$(dumpe2fs -h $blockdev | grep '^Filesystem UUID:' \
+            | sed -re 's/.*UUID:\s*//')
 TMPDIR=`mktemp -d` || exit 1
 trap "umount $TMPDIR; rmdir $TMPDIR" EXIT
 
@@ -129,10 +131,10 @@ echo $instance > $TMPDIR/etc/mailname
 cat > $TMPDIR/etc/fstab <<EOF
 # /etc/fstab: static file system information.
 #
-# <file system> <mount point>   <type>  <options>       <dump>  <pass>
-/dev/sda        /               ext3    defaults        0       1
-/dev/sdb        swap            swap    defaults        0       0
-proc            /proc           proc    defaults        0       0
+# <file system>   <mount point>   <type>  <options>       <dump>  <pass>
+UUID=$root_uuid   /               ext3    defaults        0       1
+UUID=$swap_uuid   swap            swap    defaults        0       0
+proc              /proc           proc    defaults        0       0
 EOF
 
 cat > $TMPDIR/etc/network/interfaces <<EOF

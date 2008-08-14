@@ -1,3 +1,10 @@
+Version 0.6 (unreleased)
+-----------
+
+The instance's fstab is now generated with volumes' UUIDs rather than paths.
+This makes it more resilient to changes and use under different
+hypervisors/drivers.
+
 Version 0.5
 -----------
 
