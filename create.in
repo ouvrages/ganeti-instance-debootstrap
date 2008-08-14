@@ -142,6 +142,16 @@ auto lo
 iface lo inet loopback
 EOF
 
+if [ -e $TMPDIR/etc/inittab ]; then
+  cat $TMPDIR/etc/inittab | sed -re 's/\stty1$/ console/' \
+    > $TMPDIR/etc/inittab.new
+  mv $TMPDIR/etc/inittab.new $TMPDIR/etc/inittab
+elif [ -e $TMPDIR/etc/event.d/tty1 ]; then
+  cat $TMPDIR/etc/event.d/tty1 | sed -re 's/tty1/console/' \
+    > $TMPDIR/etc/event.d/console
+  rm $TMPDIR/etc/event.d/tty1
+fi
+
 umount $TMPDIR
 rmdir $TMPDIR
 trap - EXIT
