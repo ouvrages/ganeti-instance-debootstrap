@@ -44,10 +44,10 @@ if [ -z "$instance" -o -z "$blockdev" -o -z "$swapdev" ]; then
 	exit 1
 fi
 
-swap_uuid=$(mkswap $swapdev | grep 'UUID' | sed -re 's/.*UUID=//')
+mkswap $swapdev
 mke2fs -Fjq $blockdev
-root_uuid=$(dumpe2fs -h $blockdev | grep '^Filesystem UUID:' \
-            | sed -re 's/.*UUID:\s*//')
+swap_uuid=$(/sbin/vol_id --uuid $swapdev )
+root_uuid=$(/sbin/vol_id --uuid $blockdev )
 
 TMPDIR=`mktemp -d` || exit 1
 trap "umount $TMPDIR; rmdir $TMPDIR" EXIT
