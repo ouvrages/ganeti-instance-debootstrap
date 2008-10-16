@@ -38,18 +38,18 @@ MNAME="$TMPDIR/etc/mailname"
 # for hostname, we raise and error if the old hostname is not what we
 # expect
 OLD_HNAME="`cat $HNAME`"
-if [ "$OLD_HNAME" = "$instance" ]; then
-	echo $new_name > $HNAME
+if [ "$OLD_HNAME" = "$old_name" ]; then
+	echo $instance > $HNAME
 else
-	echo "Cannot rename from $instance to $new_name:" 1>&2
+	echo "Cannot rename from $old_name to $instance:" 1>&2
 	echo "Instance has a different hostname ($OLD_HNAME)" 1>&2
 	exit 1
 fi
 
 # for mailname, we rename only if it has the old name, otherwise we
 # ignore it (and assumme that it's a customized name)
-if [ "`cat $MNAME`" = "$instance" ]; then
-	echo $new_name > $MNAME
+if [ "`cat $MNAME`" = "$old_name" ]; then
+	echo $instance > $MNAME
 fi
 
 umount $TMPDIR

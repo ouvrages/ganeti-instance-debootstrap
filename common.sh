@@ -6,9 +6,9 @@ get_api5_arguments() {
   eval set -- "$TEMP"
   while true; do
     case "$1" in
-      -i|-o) instance=$2; shift 2;;
+      -i|-n) instance=$2; shift 2;;
 
-      -n) new_name=$2; shift 2;;
+      -o) old_name=$2; shift 2;;
 
       -b) blockdev=$2; shift 2;;
 
