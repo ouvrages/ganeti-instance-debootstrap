@@ -44,10 +44,10 @@ get_api10_arguments() {
     exit 1
   fi
   blockdev=$DISK_0_PATH
-  if [ "$0" = "rename" -a -z "$NEW_INSTANCE_NAME" ]; then
+  if [ "$0" = "rename" -a -z "$OLD_INSTANCE_NAME" ]; then
     echo "Missing OS API Variable"
   fi
-  new_name=$NEW_INSTANCE_NAME
+  old_name=$OLD_INSTANCE_NAME
 }
 
 if [ -z "$OS_API_VERSION" -o "$OS_API_VERSION" = "5" ]; then
