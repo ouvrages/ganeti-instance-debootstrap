@@ -48,10 +48,12 @@ CACHE_FILE="$CACHE_DIR/cache-${SUITE}-${DPKG_ARCH}.tar"
 
 . common.sh
 
-mkswap $swapdev
 mke2fs -Fjq $blockdev
-swap_uuid=$(/sbin/vol_id --uuid $swapdev )
 root_uuid=$(/sbin/vol_id --uuid $blockdev )
+if [ -n "$swapdev" ]; then
+  mkswap $swapdev
+  swap_uuid=$(/sbin/vol_id --uuid $swapdev )
+fi
 
 TMPDIR=`mktemp -d` || exit 1
 trap "umount $TMPDIR; rmdir $TMPDIR" EXIT
@@ -111,8 +113,11 @@ cat > $TMPDIR/etc/fstab <<EOF
 #
 # <file system>   <mount point>   <type>  <options>       <dump>  <pass>
 UUID=$root_uuid   /               ext3    defaults        0       1
-UUID=$swap_uuid   swap            swap    defaults        0       0
 proc              /proc           proc    defaults        0       0
+EOF
+
+[ -n "$swapdev" ] && cat >> $TMPDIR/etc/fstab <<EOF
+UUID=$swap_uuid   swap            swap    defaults        0       0
 EOF
 
 cat > $TMPDIR/etc/network/interfaces <<EOF
