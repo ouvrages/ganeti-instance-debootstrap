@@ -33,5 +33,33 @@ get_api5_arguments() {
   fi
 }
 
-get_api5_arguments
+get_api10_arguments() {
+  if [ -z "$INSTANCE" -o -z "$HYPERVISOR" -o -z "$DISK_COUNT" ]; then
+    echo "Missing OS API Variable"
+    exit 1
+  fi
+  instance=$INSTANCE
+  if [ $DISK_COUNT -lt 1 -o -z "$DISK_0_PATH" ]; then
+    echo "At least one disk is needed"
+    exit 1
+  fi
+  blockdev=$DISK_0_PATH
+  if [ "$0" = "rename" -a -z "$NEW_INSTANCE_NAME" ]; then
+    echo "Missing OS API Variable"
+  fi
+  new_name=$NEW_INSTANCE_NAME
+}
 
+if [ -z "$OS_API_VERSION" -o "$OS_API_VERSION" = "5" ]; then
+  OS_API_VERSION=5
+  get_api5_arguments
+elif [ "$OS_API_VERSION" = "10" ]; then
+  get_api10_arguments
+  if [ $0 = "import" -o $0 = "export" ]; then
+    echo "import/export still not compatible with API version 10"
+    exit 1
+  fi
+else
+  echo "Unknown OS API VERSION $OS_API_VERSION"
+  exit 1
+fi
