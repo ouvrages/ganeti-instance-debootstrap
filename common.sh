@@ -34,11 +34,11 @@ get_api5_arguments() {
 }
 
 get_api10_arguments() {
-  if [ -z "$INSTANCE" -o -z "$HYPERVISOR" -o -z "$DISK_COUNT" ]; then
+  if [ -z "$INSTANCE_NAME" -o -z "$HYPERVISOR" -o -z "$DISK_COUNT" ]; then
     echo "Missing OS API Variable"
     exit 1
   fi
-  instance=$INSTANCE
+  instance=$INSTANCE_NAME
   if [ $DISK_COUNT -lt 1 -o -z "$DISK_0_PATH" ]; then
     echo "At least one disk is needed"
     exit 1
