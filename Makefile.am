@@ -4,7 +4,7 @@ osdir=$(OS_DIR)/$(osname)
 
 os_SCRIPTS = create
 dist_os_SCRIPTS = import export rename
-dist_os_DATA = ganeti_api_version
+dist_os_DATA = ganeti_api_version common.sh
 
 dist_doc_DATA = COPYING NEWS README
 
