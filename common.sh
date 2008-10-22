@@ -66,6 +66,11 @@ get_api10_arguments() {
       log_error "Missing OS API Variable EXPORT_DEVICE"
     fi
     blockdev=$EXPORT_DEVICE
+  elif [ "$SCRIPT_NAME" = "import" ]; then
+    if [ -z "$IMPORT_DEVICE" ]; then
+       log_error "Missing OS API Variable IMPORT_DEVICE"
+    fi
+    blockdev=$IMPORT_DEVICE
   else
     blockdev=$DISK_0_PATH
   fi
@@ -80,10 +85,6 @@ if [ -z "$OS_API_VERSION" -o "$OS_API_VERSION" = "5" ]; then
   get_api5_arguments
 elif [ "$OS_API_VERSION" = "10" ]; then
   get_api10_arguments
-  if [ $SCRIPT_NAME = "import" ]; then
-    log_error "import still not compatible with API version 10"
-    exit 1
-  fi
 else
   log_error "Unknown OS API VERSION $OS_API_VERSION"
   exit 1
