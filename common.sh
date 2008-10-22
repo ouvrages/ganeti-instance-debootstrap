@@ -61,7 +61,14 @@ get_api10_arguments() {
     log_error "At least one disk is needed"
     exit 1
   fi
-  blockdev=$DISK_0_PATH
+  if [ "$SCRIPT_NAME" = "export" ]; then
+    if [ -z "$EXPORT_DEVICE" ]; then
+      log_error "Missing OS API Variable EXPORT_DEVICE"
+    fi
+    blockdev=$EXPORT_DEVICE
+  else
+    blockdev=$DISK_0_PATH
+  fi
   if [ "$SCRIPT_NAME" = "rename" -a -z "$OLD_INSTANCE_NAME" ]; then
     log_error "Missing OS API Variable OLD_INSTANCE_NAME"
   fi
@@ -73,8 +80,8 @@ if [ -z "$OS_API_VERSION" -o "$OS_API_VERSION" = "5" ]; then
   get_api5_arguments
 elif [ "$OS_API_VERSION" = "10" ]; then
   get_api10_arguments
-  if [ $SCRIPT_NAME = "import" -o $SCRIPT_NAME = "export" ]; then
-    log_error "import/export still not compatible with API version 10"
+  if [ $SCRIPT_NAME = "import" ]; then
+    log_error "import still not compatible with API version 10"
     exit 1
   fi
 else

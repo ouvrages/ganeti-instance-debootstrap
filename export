@@ -21,4 +21,9 @@ set -e
 
 . common.sh
 
-dump -0 -q -f - "$blockdev"
+vol_type=$($VOL_ID -t $blockdev)
+
+if [ "$vol_type" = "ext3" -o "$vol_type" = "ext2" ]; then
+  dump -0 -q -f - "$blockdev"
+fi
+
