@@ -1,4 +1,6 @@
 
+SCRIPT_NAME=$(basename $0)
+
 for dir in /lib/udev /sbin; do
   if [ -f $dir/vol_id -a -x $dir/vol_id ]; then
     VOL_ID=$dir/vol_id
@@ -34,11 +36,11 @@ get_api5_arguments() {
     echo "Missing OS API Argument"
     exit 1
   fi
-  if [ "$0" != "export" -a -z "$swapdev"  ]; then
+  if [ "$SCRIPT_NAME" != "export" -a -z "$swapdev"  ]; then
     echo "Missing OS API Argument"
     exit 1
   fi
-  if [ "$0" = "rename" -a -z "$new_name"  ]; then
+  if [ "$SCRIPT_NAME" = "rename" -a -z "$new_name"  ]; then
     echo "Missing OS API Argument"
     exit 1
   fi
@@ -55,7 +57,7 @@ get_api10_arguments() {
     exit 1
   fi
   blockdev=$DISK_0_PATH
-  if [ "$0" = "rename" -a -z "$OLD_INSTANCE_NAME" ]; then
+  if [ "$SCRIPT_NAME" = "rename" -a -z "$OLD_INSTANCE_NAME" ]; then
     echo "Missing OS API Variable"
   fi
   old_name=$OLD_INSTANCE_NAME
@@ -66,7 +68,7 @@ if [ -z "$OS_API_VERSION" -o "$OS_API_VERSION" = "5" ]; then
   get_api5_arguments
 elif [ "$OS_API_VERSION" = "10" ]; then
   get_api10_arguments
-  if [ $0 = "import" -o $0 = "export" ]; then
+  if [ $SCRIPT_NAME = "import" -o $SCRIPT_NAME = "export" ]; then
     echo "import/export still not compatible with API version 10"
     exit 1
   fi
