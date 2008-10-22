@@ -41,8 +41,8 @@ OLD_HNAME="`cat $HNAME`"
 if [ "$OLD_HNAME" = "$old_name" ]; then
 	echo $instance > $HNAME
 else
-	echo "Cannot rename from $old_name to $instance:" 1>&2
-	echo "Instance has a different hostname ($OLD_HNAME)" 1>&2
+	log_error "Cannot rename from $old_name to $instance:"
+	log_error "Instance has a different hostname ($OLD_HNAME)"
 	exit 1
 fi
 
