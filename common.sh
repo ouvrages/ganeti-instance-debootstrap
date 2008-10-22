@@ -1,4 +1,15 @@
 
+for dir in /lib/udev /sbin; do
+  if [ -f $dir/vol_id -a -x $dir/vol_id ]; then
+    VOL_ID=$dir/vol_id
+  fi
+done
+
+if [ -z "$VOL_ID" ]; then
+    echo "vol_id not found, please install udev"
+    exit 1
+fi
+
 get_api5_arguments() {
   TEMP=`getopt -o o:n:i:b:s: -n '$0' -- "$@"`
   if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi

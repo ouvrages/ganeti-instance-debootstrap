@@ -49,10 +49,10 @@ CACHE_FILE="$CACHE_DIR/cache-${SUITE}-${DPKG_ARCH}.tar"
 . common.sh
 
 mke2fs -Fjq $blockdev
-root_uuid=$(/sbin/vol_id --uuid $blockdev )
+root_uuid=$($VOL_ID -u $blockdev )
 if [ -n "$swapdev" ]; then
   mkswap $swapdev
-  swap_uuid=$(/sbin/vol_id --uuid $swapdev )
+  swap_uuid=$($VOL_ID -u $swapdev )
 fi
 
 TMPDIR=`mktemp -d` || exit 1
