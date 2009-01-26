@@ -62,6 +62,14 @@ CACHE_FILE="$CACHE_DIR/cache-${SUITE}-${DPKG_ARCH}.tar"
 
 . common.sh
 
+# If the target device is not a real block device we'll first losetup it.
+# This is needed for file disks.
+if [ ! -b $blockdev ]; then
+  ORIGINAL_BLOCKDEV=$blockdev
+  blockdev=$(losetup -sf $blockdev)
+  CLEANUP+=("losetup -d $blockdev")
+fi
+
 mke2fs -Fjq $blockdev
 root_uuid=$($VOL_ID -u $blockdev )
 if [ -n "$swapdev" ]; then
@@ -72,13 +80,7 @@ fi
 TMPDIR=`mktemp -d` || exit 1
 CLEANUP+=("rmdir $TMPDIR")
 
-# If it's not a block device try to mount it via loopback device.
-# This is needed for file disks.
-MOUNT_OPTIONS=""
-if [ ! -b $blockdev ]; then
-  MOUNT_OPTIONS="$MOUNT_OPTIONS -o loop"
-fi
-mount $MOUNT_OPTIONS $blockdev $TMPDIR
+mount $blockdev $TMPDIR
 CLEANUP+=("umount $TMPDIR")
 
 # remove the cache file if it's old (> 2 weeks) and writable by the owner (the
