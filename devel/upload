@@ -61,4 +61,5 @@ for host; do
   echo Uploading code to ${host}...
   rsync -v -rlDc ${TXD}/* root@${host}:/ &
 done
+wait
 
