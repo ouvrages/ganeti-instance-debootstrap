@@ -19,6 +19,20 @@
 
 set -e
 
+CLEANUP=( )
+
+cleanup() {
+  if [ ${#CLEANUP[*]} -gt 0 ]; then
+    LAST_ELEMENT=$((${#CLEANUP[*]}-1))
+    REVERSE_INDEXES=$(seq ${LAST_ELEMENT} -1 0)
+    for i in $REVERSE_INDEXES; do
+      ${CLEANUP[$i]}
+    done
+  fi
+}
+
+trap cleanup EXIT
+
 DEFAULT_FILE="@sysconfdir@/default/ganeti-instance-debootstrap"
 if [ -f "$DEFAULT_FILE" ]; then
     . "$DEFAULT_FILE"
@@ -56,7 +70,7 @@ if [ -n "$swapdev" ]; then
 fi
 
 TMPDIR=`mktemp -d` || exit 1
-trap "umount $TMPDIR; rmdir $TMPDIR" EXIT
+CLEANUP+=("rmdir $TMPDIR")
 
 # If it's not a block device try to mount it via loopback device.
 # This is needed for file disks.
@@ -65,6 +79,7 @@ if [ ! -b $blockdev ]; then
   MOUNT_OPTIONS="$MOUNT_OPTIONS -o loop"
 fi
 mount $MOUNT_OPTIONS $blockdev $TMPDIR
+CLEANUP+=("umount $TMPDIR")
 
 # remove the cache file if it's old (> 2 weeks) and writable by the owner (the
 # default due to the standard umask)
@@ -135,8 +150,8 @@ elif [ -e $TMPDIR/etc/event.d/tty1 ]; then
   rm $TMPDIR/etc/event.d/tty1
 fi
 
-umount $TMPDIR
-rmdir $TMPDIR
+# execute cleanups
+cleanup
 trap - EXIT
 
 exit 0
