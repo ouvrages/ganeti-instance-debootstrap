@@ -1,9 +1,13 @@
-Version 0.6 (unreleased)
+Version 0.6
 -----------
+
+Support for Ganeti 2.0 (os api 10)
 
 The instance's fstab is now generated with volumes' UUIDs rather than paths.
 This makes it more resilient to changes and use under different
 hypervisors/drivers.
+
+Init is configured to listen on /dev/console rather than /dev/tty1
 
 Version 0.5
 -----------
