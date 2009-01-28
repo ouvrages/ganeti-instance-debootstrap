@@ -50,6 +50,7 @@ fi
 : ${EXTRA_PKGS:=""}
 : ${GENERATE_CACHE:="yes"}
 : ${CLEAN_CACHE:="14"} # number of days to keep a cache file
+: ${PARTITION_STYLE:="none"} # disk partition style
 
 CACHE_DIR="@localstatedir@/cache/ganeti-instance-debootstrap"
 
@@ -68,6 +69,11 @@ if [ ! -b $blockdev ]; then
   ORIGINAL_BLOCKDEV=$blockdev
   blockdev=$(losetup -sf $blockdev)
   CLEANUP+=("losetup -d $blockdev")
+fi
+
+if [ "$PARTITION_STYLE" != "none" ]; then
+  echo "Unknown partition style $PARTITION_STYLE"
+  exit 1
 fi
 
 mke2fs -Fjq $blockdev
