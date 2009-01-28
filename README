@@ -66,6 +66,9 @@ named 'defaults' in the source distribution for more details):
   otherwise, the value of this variable will be taken as the number of
   days after which to remove the cache file; the default is 14 (two
   weeks)
+- PARTITION_STYLE: if 'none' the device will be formatted directly, if 'msdos'
+  a partition table will be installed on it. You need to have kpartx installed
+  to use the 'msdos' option.
 
 Note that the settings file is important on the node that the instance
 is installed on, not the cluster master. This is indeed not a very good

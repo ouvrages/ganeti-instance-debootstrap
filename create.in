@@ -71,13 +71,28 @@ if [ ! -b $blockdev ]; then
   CLEANUP+=("losetup -d $blockdev")
 fi
 
-if [ "$PARTITION_STYLE" != "none" ]; then
+if [ "$PARTITION_STYLE" = "none" ]; then
+  filesystem_dev=$blockdev
+elif [ "$PARTITION_STYLE" = "msdos" ]; then
+  # Create one big partition, and make it bootable
+  sfdisk --quiet --Linux $blockdev <<EOF
+0,,L,*
+EOF
+  block_base=`basename $blockdev`
+  filesystem_dev_base=`kpartx -l -p- $blockdev | \
+                       grep -m 1 "^$block_base.*$blockdev" | \
+                       awk '{print $1}'`
+  kpartx -a -p- $blockdev
+  CLEANUP+=("kpartx -d -p- $blockdev")
+  filesystem_dev="/dev/mapper/$filesystem_dev_base"
+else
   echo "Unknown partition style $PARTITION_STYLE"
   exit 1
 fi
 
-mke2fs -Fjq $blockdev
-root_uuid=$($VOL_ID -u $blockdev )
+mke2fs -Fjq $filesystem_dev
+root_uuid=$($VOL_ID -u $filesystem_dev )
+
 if [ -n "$swapdev" ]; then
   mkswap $swapdev
   swap_uuid=$($VOL_ID -u $swapdev )
@@ -86,7 +101,7 @@ fi
 TMPDIR=`mktemp -d` || exit 1
 CLEANUP+=("rmdir $TMPDIR")
 
-mount $blockdev $TMPDIR
+mount $filesystem_dev $TMPDIR
 CLEANUP+=("umount $TMPDIR")
 
 # remove the cache file if it's old (> 2 weeks) and writable by the owner (the
