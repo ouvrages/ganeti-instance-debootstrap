@@ -48,6 +48,7 @@ fi
 : ${SUITE:="lenny"}
 : ${ARCH:=""}
 : ${EXTRA_PKGS:=""}
+: ${CUSTOMIZE_DIR:="@sysconfdir@/ganeti/instance-debootstrap.d"}
 : ${GENERATE_CACHE:="yes"}
 : ${CLEAN_CACHE:="14"} # number of days to keep a cache file
 : ${PARTITION_STYLE:="none"} # disk partition style
@@ -171,6 +172,16 @@ elif [ -e $TMPDIR/etc/event.d/tty1 ]; then
   cat $TMPDIR/etc/event.d/tty1 | sed -re 's/tty1/console/' \
     > $TMPDIR/etc/event.d/console
   rm $TMPDIR/etc/event.d/tty1
+fi
+
+RUN_PARTS=`which run-parts`
+
+if [ -n "$RUN_PARTS" -a -n "$CUSTOMIZE_DIR" -a -d "$CUSTOMIZE_DIR" ]; then
+  TARGET=$TMPDIR
+  BLOCKDEV=$blockdev
+  FSYSDEV=$filesystem_dev
+  export TARGET SUITE ARCH PARTITION_STYLE EXTRA_PKGS BLOCKDEV FSYSDEV
+  $RUN_PARTS $CUSTOMIZE_DIR
 fi
 
 # execute cleanups
