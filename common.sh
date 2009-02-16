@@ -17,10 +17,9 @@ if [ -z "$VOL_ID" ]; then
 fi
 
 get_api5_arguments() {
-  TEMP=`getopt -o o:n:i:b:s: -n '$0' -- "$@"`
-  if [ $? != 0 ] ; then log_error "Terminating..."; exit 1 ; fi
+  GETOPT_RESULT=$*
   # Note the quotes around `$TEMP': they are essential!
-  eval set -- "$TEMP"
+  eval set -- "$GETOPT_RESULT"
   while true; do
     case "$1" in
       -i|-n) instance=$2; shift 2;;
@@ -82,7 +81,9 @@ get_api10_arguments() {
 
 if [ -z "$OS_API_VERSION" -o "$OS_API_VERSION" = "5" ]; then
   OS_API_VERSION=5
-  get_api5_arguments
+  GETOPT_RESULT=`getopt -o o:n:i:b:s: -n '$0' -- "$@"`
+  if [ $? != 0 ] ; then log_error "Terminating..."; exit 1 ; fi
+  get_api5_arguments $GETOPT_RESULT
 elif [ "$OS_API_VERSION" = "10" ]; then
   get_api10_arguments
 else

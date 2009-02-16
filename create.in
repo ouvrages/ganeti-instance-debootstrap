@@ -96,7 +96,7 @@ root_uuid=$($VOL_ID -u $filesystem_dev )
 
 if [ -n "$swapdev" ]; then
   mkswap $swapdev
-  swap_uuid=$($VOL_ID -u $swapdev )
+  swap_uuid=$($VOL_ID -u $swapdev || true )
 fi
 
 TMPDIR=`mktemp -d` || exit 1
@@ -155,7 +155,7 @@ UUID=$root_uuid   /               ext3    defaults        0       1
 proc              /proc           proc    defaults        0       0
 EOF
 
-[ -n "$swapdev" ] && cat >> $TMPDIR/etc/fstab <<EOF
+[ -n "$swapdev" -a -n "$swap_uuid" ] && cat >> $TMPDIR/etc/fstab <<EOF
 UUID=$swap_uuid   swap            swap    defaults        0       0
 EOF
 
