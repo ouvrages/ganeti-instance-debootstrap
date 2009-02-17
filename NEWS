@@ -1,3 +1,20 @@
+Version 0.7
+-----------
+
+Fix Ganeti 1.2 compatibility (0.6 was broken) and force the scripts to be
+executed under /bin/bash (rather than /bin/sh). This fixes compatibility with
+distributions where /bin/sh is not bash.
+
+Support 'msdos' partition style, in which the instance disk gets a partition
+table, and one big partition, rather than creating the filesytem directly on
+the block device. This requires kpartx to be installed, and is the default when
+installing under Ganeti 2.0.
+
+Added the possibility to customize the installation without having to patch the
+os directly, by executing the scripts in CUSTOMIZE_DIR and giving them a chance
+to change the instance filesystem. As an example a script that sets the first
+nic to request a dhcp address is provided.
+
 Version 0.6
 -----------
 
