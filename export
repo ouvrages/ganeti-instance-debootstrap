@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2007 Google Inc.
+# Copyright (C) 2007, 2008, 2009 Google Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,9 +21,36 @@ set -e
 
 . common.sh
 
-vol_type=$($VOL_ID -t $blockdev)
+CLEANUP=( )
 
-if [ "$vol_type" = "ext3" -o "$vol_type" = "ext2" ]; then
-  dump -0 -q -f - "$blockdev"
+trap cleanup EXIT
+
+# If the target device is not a real block device we'll first losetup it.
+# This is needed for file disks.
+if [ ! -b $blockdev ]; then
+  ORIGINAL_BLOCKDEV=$blockdev
+  blockdev=$(losetup -sf $blockdev)
+  CLEANUP+=("losetup -d $blockdev")
 fi
 
+if [ "$PARTITION_STYLE" = "none" ]; then
+  filesystem_dev=$blockdev
+elif [ "$PARTITION_STYLE" = "msdos" ]; then
+  filesystem_dev=$(map_disk0 $blockdev)
+  CLEANUP+=("unmap_disk0 $blockdev")
+else
+  echo "Unknown partition style $PARTITION_STYLE"
+  exit 1
+fi
+
+vol_type=$($VOL_ID -t $filesystem_dev)
+
+if [ "$vol_type" = "ext3" -o "$vol_type" = "ext2" ]; then
+  dump -0 -q -f - "$filesystem_dev"
+fi
+
+# execute cleanups
+cleanup
+trap - EXIT
+
+exit 0

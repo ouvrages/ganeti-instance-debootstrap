@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2007 Google Inc.
+# Copyright (C) 2007, 2008, 2009 Google Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,46 +19,11 @@
 
 set -e
 
+. common.sh
+
 CLEANUP=( )
 
-cleanup() {
-  if [ ${#CLEANUP[*]} -gt 0 ]; then
-    LAST_ELEMENT=$((${#CLEANUP[*]}-1))
-    REVERSE_INDEXES=$(seq ${LAST_ELEMENT} -1 0)
-    for i in $REVERSE_INDEXES; do
-      ${CLEANUP[$i]}
-    done
-  fi
-}
-
 trap cleanup EXIT
-
-DEFAULT_FILE="@sysconfdir@/default/ganeti-instance-debootstrap"
-if [ -f "$DEFAULT_FILE" ]; then
-    . "$DEFAULT_FILE"
-fi
-
-# note: we don't set a default mirror since debian and ubuntu have
-# different defaults, and it's better to use the default
-
-# only if the user want to specify a mirror in the defaults file we
-# will use it, this declaration is to make sure the variable is set
-: ${MIRROR:=""}
-: ${PROXY:=""}
-: ${SUITE:="lenny"}
-: ${ARCH:=""}
-: ${EXTRA_PKGS:=""}
-: ${CUSTOMIZE_DIR:="@sysconfdir@/ganeti/instance-debootstrap.d"}
-: ${GENERATE_CACHE:="yes"}
-: ${CLEAN_CACHE:="14"} # number of days to keep a cache file
-if [ -z "$OS_API_VERSION" -o "$OS_API_VERSION" = "5" ]; then
-  DEFAULT_PARTITION_STYLE="none"
-else
-  DEFAULT_PARTITION_STYLE="msdos"
-fi
-: ${PARTITION_STYLE:=$DEFAULT_PARTITION_STYLE} # disk partition style
-
-CACHE_DIR="@localstatedir@/cache/ganeti-instance-debootstrap"
 
 if [ "$GENERATE_CACHE" = "yes" -a ! -d "$CACHE_DIR" ]; then
   mkdir -p "$CACHE_DIR"
@@ -66,8 +31,6 @@ fi
 
 DPKG_ARCH=${ARCH:-`dpkg --print-architecture`}
 CACHE_FILE="$CACHE_DIR/cache-${SUITE}-${DPKG_ARCH}.tar"
-
-. common.sh
 
 # If the target device is not a real block device we'll first losetup it.
 # This is needed for file disks.
@@ -81,16 +44,9 @@ if [ "$PARTITION_STYLE" = "none" ]; then
   filesystem_dev=$blockdev
 elif [ "$PARTITION_STYLE" = "msdos" ]; then
   # Create one big partition, and make it bootable
-  sfdisk --quiet --Linux $blockdev <<EOF
-0,,L,*
-EOF
-  block_base=`basename $blockdev`
-  filesystem_dev_base=`kpartx -l -p- $blockdev | \
-                       grep -m 1 "^$block_base.*$blockdev" | \
-                       awk '{print $1}'`
-  kpartx -a -p- $blockdev
-  CLEANUP+=("kpartx -d -p- $blockdev")
-  filesystem_dev="/dev/mapper/$filesystem_dev_base"
+  format_disk0 $blockdev
+  filesystem_dev=$(map_disk0 $blockdev)
+  CLEANUP+=("unmap_disk0 $blockdev")
 else
   echo "Unknown partition style $PARTITION_STYLE"
   exit 1

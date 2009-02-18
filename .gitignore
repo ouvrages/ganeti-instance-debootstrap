@@ -10,7 +10,7 @@
 /configure
 
 # built scripts
-/create
+/common.sh
 
 # archives
 /ganeti-instance-debootstrap-*.tar.gz
