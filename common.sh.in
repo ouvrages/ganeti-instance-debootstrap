@@ -97,12 +97,20 @@ EOF
 
 map_disk0() {
   blockdev="$1"
-  block_base=`basename $blockdev`
   filesystem_dev_base=`kpartx -l -p- $blockdev | \
-                       grep -m 1 "^$block_base.*$blockdev" | \
+                       grep -m 1 -- "-1.*$blockdev" | \
                        awk '{print $1}'`
-  kpartx -a -p- $blockdev
-  echo "/dev/mapper/$filesystem_dev_base"
+  if [ -z "$filesystem_dev_base" ]; then
+    log_error "Cannot interpret kpartx output and get partition mapping"
+    exit 1
+  fi
+  kpartx -a -p- $blockdev > /dev/null
+  filesystem_dev="/dev/mapper/$filesystem_dev_base"
+  if [ ! -b "$filesystem_dev" ]; then
+    log_error "Can't find kpartx mapped partition: $filesystem_dev"
+    exit 1
+  fi
+  echo "$filesystem_dev"
 }
 
 unmap_disk0() {
