@@ -17,6 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
+CLEANUP=( )
 
 log_error() {
   echo "$@" >&2
@@ -126,6 +127,8 @@ cleanup() {
     done
   fi
 }
+
+trap cleanup EXIT
 
 DEFAULT_FILE="@sysconfdir@/default/ganeti-instance-debootstrap"
 if [ -f "$DEFAULT_FILE" ]; then

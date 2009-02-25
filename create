@@ -21,10 +21,6 @@ set -e
 
 . common.sh
 
-CLEANUP=( )
-
-trap cleanup EXIT
-
 if [ "$GENERATE_CACHE" = "yes" -a ! -d "$CACHE_DIR" ]; then
   mkdir -p "$CACHE_DIR"
 fi

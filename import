@@ -21,10 +21,6 @@ set -e
 
 . common.sh
 
-CLEANUP=( )
-
-trap cleanup EXIT
-
 # If the target device is not a real block device we'll first losetup it.
 # This is needed for file disks.
 if [ ! -b $blockdev ]; then

@@ -21,10 +21,6 @@ set -e
 
 . common.sh
 
-CLEANUP=( )
-
-trap cleanup EXIT
-
 TMPDIR=`mktemp -d` || exit 1
 CLEANUP+=("rmdir $TMPDIR")
 
