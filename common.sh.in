@@ -189,8 +189,8 @@ if [ -n "$OS_VARIANT" ]; then
     exit 1
   fi
   VARIANT_CONFIG="$VARIANTS_DIR/$OS_VARIANT.conf"
-  if [ -f "$VARIANTS_CONFIG" ]; then
-    . "$VARIANTS_CONFIG"
+  if [ -f "$VARIANT_CONFIG" ]; then
+    . "$VARIANT_CONFIG"
   else
     if grep -qxF "$OS_VARIANT" variants.list; then
       log_error "ERROR: instance-debootstrap configuration error"
