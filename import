@@ -42,11 +42,11 @@ else
 fi
 
 mke2fs -Fjq $filesystem_dev
-root_uuid=$($VOL_ID -u $filesystem_dev )
+root_uuid=$($VOL_ID $filesystem_dev )
 
 if [ -n "$swapdev" ]; then
   mkswap $swapdev
-  swap_uuid=$($VOL_ID -u $swapdev || true )
+  swap_uuid=$($VOL_ID $swapdev || true )
 fi
 
 TMPDIR=`mktemp -d` || exit 1
