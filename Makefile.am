@@ -1,7 +1,7 @@
 osname=$(subst ganeti-instance-,,$(PACKAGE))
 
 osdir=$(OS_DIR)/$(osname)
-variantsdir="$(DESTDIR)${sysconfdir}/ganeti/instance-debootstrap/variants"
+variantsdir=$(DESTDIR)$(sysconfdir)/ganeti/instance-debootstrap/variants
 
 dist_os_SCRIPTS = create import export rename
 dist_os_DATA = ganeti_api_version variants.list
@@ -22,7 +22,7 @@ common.sh: common.sh.in Makefile
 	chmod +x $@
 
 install-exec-local:
-	@mkdir_p@ "$(variantsdir)"
-	touch "$(variantsdir)/default.conf"
+	@mkdir_p@ $(variantsdir)
+	touch $(variantsdir)/default.conf
 
 CLEANFILES = common.sh
