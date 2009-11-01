@@ -121,14 +121,35 @@ auto lo
 iface lo inet loopback
 EOF
 
-if [ -e $TMPDIR/etc/inittab ]; then
-  cat $TMPDIR/etc/inittab | sed -re 's/\stty1$/ console/' \
-    > $TMPDIR/etc/inittab.new
-  mv $TMPDIR/etc/inittab.new $TMPDIR/etc/inittab
-elif [ -e $TMPDIR/etc/event.d/tty1 ]; then
-  cat $TMPDIR/etc/event.d/tty1 | sed -re 's/tty1/console/' \
-    > $TMPDIR/etc/event.d/console
-  rm $TMPDIR/etc/event.d/tty1
+if [ "$INSTANCE_HV_serial_console" = "True" ]; then
+  if [ -e $TMPDIR/etc/inittab ]; then
+    # debian
+    echo "T0:23:respawn:/sbin/getty ttyS0 38400" >> $TMPDIR/etc/inittab
+  elif [ -e $TMPDIR/etc/init ]; then
+    # ubuntu (eg. karmic)
+    cat > $TMPDIR/etc/init/ttyS0.conf <<EOF
+start on stopped rc RUNLEVEL=[2345]
+stop on runlevel [!2345]
+
+respawn
+exec /sbin/getty -8 38400 ttyS0
+EOF
+  elif [ -e $TMPDIR/etc/event.d ]; then
+    # ubuntu (eg. intrepid)
+    cat > $TMPDIR/etc/event.d/ttyS0.conf <<EOF
+start on stopped rc2
+start on stopped rc3
+start on stopped rc4
+start on stopped rc5
+
+stop on runlevel 0
+stop on runlevel 1
+stop on runlevel 6
+
+respawn
+exec /sbin/getty 38400 ttyS0
+EOF
+  fi
 fi
 
 RUN_PARTS=`which run-parts`
