@@ -1,3 +1,15 @@
+Version 0.8
+-----------
+
+Added support for OS API 15 (with OS variants) that is supported by
+Ganeti 2.1.
+
+blktype is now supported as an alternative to vol_id; this is needed for
+newer Debian-based operating systems.
+
+Added an example grub script, that can be used for automatically
+installing grub inside new instances.
+
 Version 0.7
 -----------
 
