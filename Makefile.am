@@ -9,7 +9,9 @@ os_DATA = common.sh
 
 dist_doc_DATA = COPYING NEWS README
 
-EXTRA_DIST = common.sh.in defaults
+EXTRA_DIST = common.sh.in defaults \
+	examples/hooks/grub \
+	examples/hooks/interfaces
 
 do_subst = sed \
 	-e 's,[@]sysconfdir[@],$(sysconfdir),g' \
