@@ -145,7 +145,7 @@ fi
 : ${SUITE:="lenny"}
 : ${ARCH:=""}
 : ${EXTRA_PKGS:=""}
-: ${CUSTOMIZE_DIR:="@sysconfdir@/ganeti/instance-debootstrap.d"}
+: ${CUSTOMIZE_DIR:="@sysconfdir@/ganeti/instance-debootstrap/hooks"}
 : ${VARIANTS_DIR:="@sysconfdir@/ganeti/instance-debootstrap/variants"}
 : ${GENERATE_CACHE:="yes"}
 : ${CLEAN_CACHE:="14"} # number of days to keep a cache file

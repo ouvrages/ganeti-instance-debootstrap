@@ -58,9 +58,9 @@ named 'defaults' in the source distribution for more details):
 - EXTRAPKGS: most OSes will need some extra packages installed to make
   them work nicely under Xen; the example file containts a few
   suggestions
-- CUSTOMIZE_DIR: a directory containing customization script for the instance.
-  (by default $sysconfdir/ganeti/instance-debootstrap.d) See "Customization of
-  the instance" below.
+- CUSTOMIZE_DIR: a directory containing customization script for the
+  instance.  (by default $sysconfdir/ganeti/instance-debootstrap/hooks)
+  See "Customization of the instance" below.
 - GENERATE_CACHE: if 'yes' (the default), the installation process will
   save and reuse a cache file to speed reinstalls (located under
   $localstatedir/cache/ganeti-instance-debootstrap)
@@ -82,14 +82,15 @@ limiting.
 Customization of the instance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If run-parts is in the os create script, and the CUSTOMIZE_DIR (by default
-$sysconfdir/ganeti/instance-debootstrap.d, /etc/ganeti/instance-debootstrap.d
-if you configured the os with --sysconfdir=/etc) directory exists any
-executable whose name matches the run-parts execution rules (quoting
-run-parts(8): the  names  must consist entirely of upper and lower case
-letters, digits, underscores, and hyphens) is executed to allow further
-personalization of the installation. The following environment variables are
-passed, in addition to the ones ganeti passes to the OS scripts:
+If run-parts is in the os create script, and the CUSTOMIZE_DIR (by
+default $sysconfdir/ganeti/instance-debootstrap/hooks,
+/etc/ganeti/instance-debootstrap/hooks if you configured the os with
+--sysconfdir=/etc) directory exists any executable whose name matches
+the run-parts execution rules (quoting run-parts(8): the names must
+consist entirely of upper and lower case letters, digits, underscores,
+and hyphens) is executed to allow further personalization of the
+installation. The following environment variables are passed, in
+addition to the ones ganeti passes to the OS scripts:
 
 TARGET: directory in which the filesystem is mounted
 SUITE: suite installed by debootstrap (eg: lenny)
@@ -137,3 +138,9 @@ The instance is a minimal install:
    definitions to /etc/network/interfaces
  - after configuring the network, it is recommended to run ``apt-get
    update`` so that signatures for the release files are picked up
+
+.. vim: set textwidth=72 :
+.. Local Variables:
+.. mode: rst
+.. fill-column: 72
+.. End:
