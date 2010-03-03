@@ -1,3 +1,14 @@
+Version 0.9
+-----------
+
+Changed the default CUSTOMIZE_DIR (under $sysconfdir, usually /etc) from
+ganeti/instance-debootstrap.d to ganeti/instance-debootstrap/hooks, to
+match better with the directory used for the variants file. Now
+customization of the instance-debootstrap is done either in the defaults
+file or under ganeti/instance-debootstrap.
+
+Also start shipping the examples in the tar archive, to ease packaging.
+
 Version 0.8
 -----------
 
@@ -90,3 +101,9 @@ existing one after two weeks).
 
 Also note that if the image file is there, the script does not need
 network access at all.
+
+.. vim: set textwidth=72 :
+.. Local Variables:
+.. mode: rst
+.. fill-column: 72
+.. End:
