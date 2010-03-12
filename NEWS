@@ -7,6 +7,13 @@ match better with the directory used for the variants file. Now
 customization of the instance-debootstrap is done either in the defaults
 file or under ganeti/instance-debootstrap.
 
+Fix serial console access for kvm instances (bind to ttyS0 rather than
+console). Please note that with this change if you toggle the serial
+console hypervisor parameter in Ganeti, but don't create the getty entry
+in /etc/inittab or /etc/event.d/ you won't have serial access. Before it
+used to work, but the serial console was slightly broken (no ctrl+c for
+example).
+
 Also start shipping the examples in the tar archive, to ease packaging.
 
 Version 0.8
