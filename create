@@ -159,7 +159,7 @@ if [ -n "$RUN_PARTS" -a -n "$CUSTOMIZE_DIR" -a -d "$CUSTOMIZE_DIR" ]; then
   BLOCKDEV=$blockdev
   FSYSDEV=$filesystem_dev
   export TARGET SUITE ARCH PARTITION_STYLE EXTRA_PKGS BLOCKDEV FSYSDEV
-  $RUN_PARTS -v $CUSTOMIZE_DIR
+  $RUN_PARTS -v --exit-on-error $CUSTOMIZE_DIR
 fi
 
 # execute cleanups
