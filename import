@@ -55,7 +55,7 @@ CLEANUP+=("rmdir $TMPDIR")
 mount $filesystem_dev $TMPDIR
 CLEANUP+=("umount $TMPDIR")
 
-( cd $TMPDIR; gunzip -c | restore -r -y -f - )
+( cd $TMPDIR; restore -r -y -f - )
 rm -f $TMPDIR/etc/udev/rules.d/z*_persistent-net.rules
 
 # Fix /etc/fstab with the new volumes' UUIDs
