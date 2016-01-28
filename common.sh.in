@@ -91,9 +91,10 @@ format_disk0() {
   # some versions of sfdisk need manual specification of 
   # head/sectors for devices such as drbd which don't 
   # report geometry
-  sfdisk -H 255 -S 63 --quiet --Linux "$1" <<EOF
-0,,L,*
+  sfdisk --quiet --force "$1" << EOF
+;
 EOF
+ 
 }
 
 map_disk0() {
